@@ -15,6 +15,10 @@ require 'includes/header.php';
           <p class="text-sm text-gray-500 mt-0.5">Planning des chantiers</p>
         </div>
         <div class="flex items-center gap-2">
+          <button id="gantt-print-btn" type="button"
+            class="text-sm font-medium px-3 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50">
+            🖨 Imprimer
+          </button>
           <button id="gantt-today-btn" type="button"
             class="text-sm font-medium px-3 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50">
             Aujourd'hui
@@ -33,4 +37,7 @@ require 'includes/header.php';
     </div>
   </main>
 </div>
+
+<div id="print-view"></div>
+
 <?php require 'includes/footer.php'; ?>

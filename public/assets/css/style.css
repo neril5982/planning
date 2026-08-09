@@ -331,3 +331,100 @@
   z-index: 1;
   pointer-events: none;
 }
+
+/* ── Impression du planning (calendrier mensuel) ──────────────────── */
+#print-view { display: none; }
+
+.print-cal-page {
+  page-break-inside: avoid;
+  border: 1.5px solid #D1D5DB;
+  border-radius: 6px;
+  padding: 6mm 7mm;
+  box-sizing: border-box;
+}
+.print-page-break { page-break-after: always; }
+
+.print-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  border-bottom: 2px solid var(--c-accent, #ADBF5E);
+  padding-bottom: 3mm;
+  margin-bottom: 4mm;
+}
+.print-title { font-size: 26px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; color: #111827; }
+.print-header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 2mm; }
+.print-header-logo { height: 12mm; width: auto; object-fit: contain; }
+.print-subtitle { font-size: 12px; color: #6B7280; }
+
+.print-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2mm;
+  margin-top: 3mm;
+  font-size: 9px;
+  color: #9CA3AF;
+}
+.print-footer-logo { height: 12mm; width: auto; object-fit: contain; }
+
+.print-cal-table {
+  width: 100%;
+  height: 138mm;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.print-cal-table th {
+  border: 1px solid #D1D5DB;
+  padding: 6px 8px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-align: left;
+  background: #EAF1E1;
+  color: #4D6321;
+}
+.print-cal-table th.print-weekend { background: #EDECE8; color: #6B7280; }
+
+.print-cal-day, .print-cal-empty {
+  border: 1px solid #D1D5DB;
+  vertical-align: top;
+  padding: 5px 6px;
+  width: 14.28%;
+}
+.print-cal-empty { background: #FAFAFA; }
+.print-cal-day.print-weekend { background: #FAFAF9; }
+.print-cal-day.print-holiday { background: #EDECE8; }
+.print-cal-day.print-holiday .print-cal-daynum { color: #6B7280; }
+.print-cal-day.print-holiday .print-cal-holiday-label { color: #6B7280; }
+
+.print-cal-daynum { font-size: 16px; font-weight: 700; color: #111827; margin-bottom: 3px; }
+.print-cal-holiday-label { font-size: 10px; color: #9CA3AF; font-style: italic; margin-bottom: 3px; }
+
+.print-cal-chip {
+  font-size: 11px;
+  line-height: 1.3;
+  border-left: 4px solid #ADBF5E;
+  border-radius: 2px;
+  padding: 2px 5px;
+  margin-bottom: 3px;
+  background: #F9FAFB;
+  white-space: normal;
+  word-break: break-word;
+}
+
+@media print {
+  @page { size: A4 landscape; margin: 14mm; }
+  body * { visibility: hidden; }
+  #print-view, #print-view * { visibility: visible; }
+  #print-view {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

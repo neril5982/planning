@@ -406,7 +406,139 @@ function openChantierModal(c) {
   }
 }
 
+// ── Impression (calendrier mensuel classique, une page par mois) ───────────────
+const DAY_NAMES_LONG = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+
+function openPrintModal() {
+  const today = new Date();
+  const defaultMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+
+  openModal(`
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold text-gray-900">Imprimer le planning</h2>
+      <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+    </div>
+    <form id="print-form" class="flex flex-col gap-4">
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Du mois</label>
+          <input id="print-mois-debut" type="month" required value="${defaultMonth}"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Au mois</label>
+          <input id="print-mois-fin" type="month" required value="${defaultMonth}"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent">
+        </div>
+      </div>
+      <p class="text-xs text-gray-500 -mt-2">
+        Un calendrier mensuel classique, une page A4 par mois, avec les chantiers listés dans chaque case.
+      </p>
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" onclick="closeModal()" class="text-sm font-medium px-4 py-2 rounded-lg border border-gray-300">Annuler</button>
+        <button type="submit" class="text-sm font-semibold px-4 py-2 rounded-lg btn-primary">Imprimer</button>
+      </div>
+    </form>
+  `);
+
+  document.getElementById('print-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const [y1, m1] = document.getElementById('print-mois-debut').value.split('-').map(Number);
+    const [y2, m2] = document.getElementById('print-mois-fin').value.split('-').map(Number);
+    const start = new Date(y1, m1 - 1, 1);
+    const end = new Date(y2, m2 - 1, 1);
+    if (end < start) { UI.toast('Le mois de fin doit être postérieur au mois de début', 'error'); return; }
+
+    const months = [];
+    for (let d = new Date(start); d <= end; d.setMonth(d.getMonth() + 1)) months.push(new Date(d));
+    if (months.length > 12) { UI.toast('Limite de 12 mois par impression', 'error'); return; }
+
+    closeModal();
+    renderPrintCalendars(months);
+    setTimeout(() => window.print(), 100);
+  });
+}
+
+// Retourne la grille (semaines de 7 jours, lundi en premier) d'un mois, avec padding null.
+function getMonthGrid(year, monthIndex) {
+  const first = new Date(year, monthIndex, 1);
+  const last = new Date(year, monthIndex + 1, 0);
+  const leadingBlanks = (first.getDay() + 6) % 7; // getDay(): 0=dimanche -> décale pour lundi=0
+  const weeks = [];
+  let week = new Array(leadingBlanks).fill(null);
+  for (let day = 1; day <= last.getDate(); day++) {
+    week.push(new Date(year, monthIndex, day));
+    if (week.length === 7) { weeks.push(week); week = []; }
+  }
+  if (week.length) {
+    while (week.length < 7) week.push(null);
+    weeks.push(week);
+  }
+  return weeks;
+}
+
+function renderPrintCalendars(months) {
+  const years = [...new Set(months.map(m => m.getFullYear()))];
+  const holidays = new Map();
+  years.forEach(y => frenchHolidays(y).forEach(h => holidays.set(pISO(h.date), h.label)));
+
+  const pages = months.map((monthDate, idx) => {
+    const year = monthDate.getFullYear(), monthIndex = monthDate.getMonth();
+    const weeks = getMonthGrid(year, monthIndex);
+
+    const headerRow = DAY_NAMES_LONG.map((name, i) =>
+      `<th class="${i >= 5 ? 'print-weekend' : ''}">${name}</th>`
+    ).join('');
+
+    const bodyRows = weeks.map(week => {
+      const cells = week.map(d => {
+        if (!d) return `<td class="print-cal-empty"></td>`;
+        const iso = pISO(d);
+        const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+        const holidayLabel = holidays.get(iso);
+        const isNonWorking = isWeekend || !!holidayLabel;
+        const dayChantiers = isNonWorking ? [] : chantiers.filter(c => c.creneaux.some(cr => iso >= cr.date_debut && iso <= cr.date_fin));
+        const chips = dayChantiers.map(c => `
+          <div class="print-cal-chip" style="border-left-color:${c.couleur}">
+            ${esc(c.nom)}${c.ville ? ' · ' + esc(c.ville) : ''}
+          </div>
+        `).join('');
+        const cls = (isWeekend ? 'print-weekend ' : '') + (holidayLabel ? 'print-holiday' : '');
+        return `
+          <td class="print-cal-day ${cls}">
+            <div class="print-cal-daynum">${d.getDate()}</div>
+            ${holidayLabel ? `<div class="print-cal-holiday-label">${esc(holidayLabel)}</div>` : ''}
+            ${chips}
+          </td>`;
+      }).join('');
+      return `<tr>${cells}</tr>`;
+    }).join('');
+
+    return `
+      <div class="print-cal-page${idx < months.length - 1 ? ' print-page-break' : ''}">
+        <div class="print-header">
+          <div class="print-title">${MONTH_NAMES[monthIndex]} ${year}</div>
+          <div class="print-header-right">
+            <img src="/assets/img/logoMoncomble.webp" alt="Moncomble" class="print-header-logo">
+            <div class="print-subtitle">imprimé le ${new Date().toLocaleDateString('fr-FR')}</div>
+          </div>
+        </div>
+        <table class="print-cal-table">
+          <thead><tr>${headerRow}</tr></thead>
+          <tbody>${bodyRows}</tbody>
+        </table>
+        <div class="print-footer">
+          <span>Développé par Dubois Digital · www.dubois-digital.com</span>
+          <img src="/assets/img/logoDuboisDigital.png" alt="Dubois Digital" class="print-footer-logo">
+        </div>
+      </div>`;
+  });
+
+  document.getElementById('print-view').innerHTML = pages.join('');
+}
+
 document.getElementById('gantt-add-btn').addEventListener('click', () => openChantierModal(null));
 document.getElementById('gantt-today-btn').addEventListener('click', () => scrollToToday(true));
+document.getElementById('gantt-print-btn').addEventListener('click', () => openPrintModal());
 
 loadChantiers();
