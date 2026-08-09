@@ -1,0 +1,333 @@
+:root {
+  --c-sidebar:        #FFFFFF;
+  --c-sidebar-border: #E8E6E0;
+  --c-sidebar-text:   #4B5563;
+  --c-sidebar-active: #ADBF5E;
+  --c-footer-bg:      #53727F;
+  --c-bg:             #F8F7F5;
+  --c-card-border:    #E8E6E0;
+
+  --c-accent:         #ADBF5E;
+  --c-accent-dark:    #8CA34D;
+  --c-secondary:      #53727F;
+
+  --c-error:          #E24B4A;
+  --c-error-dark:     #CC3C3B;
+}
+
+/* ── Page background ──────────────────────────────────────────────── */
+.page-bg { background: var(--c-bg); }
+
+/* ── Tile background (login / reset) ─────────────────────────────── */
+.tile-bg {
+  background-color: #F8F7F5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Crect width='40' height='40' fill='%23F8F7F5'/%3E%3Cpath d='M0 0.5H40M0 20.5H40M0.5 0V40M20.5 0V40' stroke='%23E8E6E0' stroke-width='1' fill='none' opacity='0.8'/%3E%3C/svg%3E");
+  background-size: 40px 40px;
+  background-repeat: repeat;
+}
+
+/* ── Card ─────────────────────────────────────────────────────────── */
+.card {
+  background: #fff;
+  border: 1px solid var(--c-card-border);
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────── */
+.btn-primary {
+  background: var(--c-accent);
+  color: #fff;
+  transition: background 0.15s;
+}
+.btn-primary:hover { background: var(--c-accent-dark); }
+
+.btn-danger {
+  background: var(--c-error);
+  color: #fff;
+  transition: background 0.15s;
+}
+.btn-danger:hover { background: var(--c-error-dark); }
+
+/* ── Sidebar ──────────────────────────────────────────────────────── */
+.sidebar {
+  background: var(--c-sidebar);
+  border-right: 1px solid var(--c-sidebar-border);
+  position: relative;
+  transition: width 0.2s ease;
+}
+
+.sidebar-link {
+  color: var(--c-sidebar-text);
+}
+.sidebar-link:hover {
+  background: #F3F4F6;
+  color: #1F2937;
+}
+.sidebar-link.active {
+  background: rgba(173, 191, 94, 0.15);
+  color: var(--c-sidebar-active);
+  font-weight: 600;
+}
+.sidebar-link.active svg { color: var(--c-sidebar-active); }
+
+.sidebar-section-label {
+  color: #9CA3AF;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.sidebar-logout { color: #9CA3AF; }
+.sidebar-logout:hover { color: var(--c-error) !important; }
+
+/* ── Toggle replier/déplier : par défaut seule l'icône "croix" est visible
+   (comportement mobile — fermer l'overlay) ────────────────────────── */
+#sidebar-toggle-icon-expand { display: none; }
+
+/* ── Sidebar repliée (desktop uniquement — icônes seules) ──────────── */
+@media (min-width: 1024px) {
+  #sidebar.collapsed { width: 84px; }
+
+  #sidebar.collapsed .sidebar-link > *:not(:first-child),
+  #sidebar.collapsed .sidebar-logout > *:not(:first-child) {
+    display: none;
+  }
+
+  #sidebar.collapsed .sidebar-section-label,
+  #sidebar.collapsed #sidebar-header-brand-row,
+  #sidebar.collapsed #sidebar-user-text {
+    display: none;
+  }
+
+  #sidebar.collapsed #sidebar-header {
+    display: flex;
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  #sidebar.collapsed #sidebar-close {
+    position: static !important;
+  }
+
+  #sidebar.collapsed [id$="-sub"] {
+    display: none !important;
+  }
+
+  #sidebar.collapsed .sidebar-link,
+  #sidebar.collapsed .sidebar-logout {
+    justify-content: center;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  #sidebar.collapsed #sidebar-toggle-icon-collapse { display: none; }
+  #sidebar.collapsed #sidebar-toggle-icon-expand { display: block; }
+
+  body.sidebar-collapsed #app-footer { left: 84px; }
+}
+
+/* ── Status badges ────────────────────────────────────────────────── */
+.badge-success { background: #D1F5EA; color: #0C5C43; }
+.badge-warning { background: #FDE68A; color: #854F0B; }
+.badge-error   { background: #FDDCDC; color: #7A1F1F; }
+.badge-info    { background: #D6E9FA; color: #0E3D6B; }
+.badge-default { background: #EBEBEB; color: #3D3D3D; }
+
+/* ── Spinner ──────────────────────────────────────────────────────── */
+.spinner {
+  border-color: rgba(55, 138, 221, 0.18);
+  border-top-color: var(--c-accent);
+}
+
+/* ── Scrollbar ────────────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   Responsive — Mobile / Tablette / Desktop
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Overlay fond semi-transparent (sidebar mobile) ──────────────── */
+#sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 40;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+#sidebar-overlay.open { opacity: 1; pointer-events: auto; }
+
+/* ── Sidebar : 220px fixe desktop, overlay 280px mobile/tablette ─── */
+#sidebar { width: 220px; flex-shrink: 0; }
+
+@media (max-width: 1023px) {
+  #sidebar {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: 280px;
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+  }
+  #sidebar.sidebar-open { transform: translateX(0); }
+}
+
+/* ── Barre burger mobile (fixed, masquée sur desktop) ─────────────── */
+#mobile-bar { display: none; }
+@media (max-width: 1023px) {
+  #mobile-bar {
+    display: flex;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 52px;
+    z-index: 30;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0 1rem;
+    background: var(--c-sidebar);
+    border-bottom: 1px solid var(--c-sidebar-border);
+  }
+  #main-content { padding-top: 52px; }
+}
+
+/* ── Typographie ───────────────────────────────────────────────────── */
+.page-title { font-size: 1.5rem; font-weight: 700; color: #111827; }
+@media (max-width: 639px) { .page-title { font-size: 1.125rem; } }
+
+/* ── Footer copyright ─────────────────────────────────────────────── */
+#app-footer {
+  position: fixed;
+  bottom: 0;
+  left: 220px;
+  right: 0;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.85);
+  background: var(--c-footer-bg);
+  z-index: 20;
+}
+#app-footer a {
+  color: #fff;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+#app-footer a:hover { opacity: 0.8; }
+
+@media (max-width: 1023px) {
+  #app-footer { left: 0; }
+}
+
+#main-content { padding-bottom: 28px; }
+
+/* ── Gantt planning chantiers ─────────────────────────────────────── */
+#gantt-grid {
+  display: grid;
+  grid-auto-rows: min-content;
+  width: max-content;
+}
+.gantt-label {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  background: #fff;
+  border-right: 1px solid var(--c-card-border);
+  border-bottom: 1px solid #F1F0EC;
+  display: flex;
+  align-items: stretch;
+  padding: 6px 10px;
+  min-width: 0;
+}
+.gantt-label-header {
+  position: sticky;
+  left: 0;
+  top: 0;
+  z-index: 4;
+  background: #fff;
+}
+.gantt-month {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--c-card-border);
+  border-right: 1px solid var(--c-card-border);
+  color: #374151;
+}
+.gantt-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  line-height: 1.2;
+  border-right: 1px solid #F1F0EC;
+  border-bottom: 1px solid var(--c-card-border);
+  color: #6B7280;
+  background: #fff;
+}
+.gantt-day.weekend  { background: #F3F4F6; }
+.gantt-day.holiday  { background: #E5E7EB; color: #374151; font-weight: 600; }
+.gantt-day .gd-num  { font-weight: 600; color: #374151; }
+
+.gantt-cell {
+  border-right: 1px solid #F1F0EC;
+  border-bottom: 1px solid #F1F0EC;
+}
+.gantt-cell.weekend { background: #FAFAF9; }
+.gantt-cell.holiday {
+  background: #EDECE8;
+}
+.gantt-cell.holiday-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.gantt-cell.holiday-label span {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 10px;
+  font-weight: 700;
+  color: #6B7280;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.gantt-bar {
+  z-index: 2;
+  border-radius: 4px;
+  margin: 3px 1px;
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #1F2937;
+  overflow: hidden;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.08);
+  transition: filter 0.15s;
+}
+.gantt-bar:hover { filter: brightness(0.95); }
+
+.gantt-today-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--c-error);
+  z-index: 1;
+  pointer-events: none;
+}

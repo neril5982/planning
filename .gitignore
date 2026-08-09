@@ -1,0 +1,6 @@
+.env
+logs/
+storage/
+.DS_Store
+!logs/.gitkeep
+graphify-out
